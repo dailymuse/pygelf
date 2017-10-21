@@ -1,4 +1,4 @@
-from logging.handlers import SocketHandler, DatagramHandler, HTTPHandler
+from logging.handlers import SocketHandler, DatagramHandler
 from logging import Handler as LoggingHandler
 from pygelf import gelf
 import ssl
@@ -88,7 +88,7 @@ class GelfUdpHandler(BaseHandler, DatagramHandler):
 
 class GelfTlsHandler(GelfTcpHandler):
 
-    def __init__(self, validate=False, ca_certs=None, certfile=None, keyfile=None, **kwargs):
+    def __init__(self, validate=False, ca_certs=None, certfile=None, keyfile=None, timeout=None, **kwargs):
         """
         TCP GELF logging handler with TLS support
 
@@ -113,10 +113,14 @@ class GelfTlsHandler(GelfTcpHandler):
         # Assume that if no keyfile was supplied, the private key it's in the certfile
         self.keyfile = keyfile or certfile
 
-    def makeSocket(self, timeout=1):
+        self.timeout = self.timeout if self.timeout is not None else 0.1
+
+    def makeSocket(self, timeout=None):
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
         if hasattr(s, 'settimeout'):
+            if timeout is None:
+                timeout = self.timeout
             s.settimeout(timeout)
 
         wrapped_socket = ssl.wrap_socket(s, keyfile=self.keyfile, certfile=self.certfile,
