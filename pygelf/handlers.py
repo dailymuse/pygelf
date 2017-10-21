@@ -113,7 +113,7 @@ class GelfTlsHandler(GelfTcpHandler):
         # Assume that if no keyfile was supplied, the private key it's in the certfile
         self.keyfile = keyfile or certfile
 
-        self.timeout = self.timeout if self.timeout is not None else 0.1
+        self.timeout = timeout if timeout is not None else 0.1
 
     def makeSocket(self, timeout=None):
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
